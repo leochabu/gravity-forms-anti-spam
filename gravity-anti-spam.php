@@ -43,6 +43,16 @@ define( 'GRAVITY_ANTI_SPAM_VERSION', '1.0.0' );
  */
 function activate_gravity_anti_spam() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gravity-anti-spam-activator.php';
+
+    if (!class_exists('GFAPI')) {
+        deactivate_plugins(plugin_basename(__FILE__));
+        wp_die(
+            __('This plugin requires Gravity Forms to be installed. Please install Gravity Forms and try again.', 'gravity-anti-spam'),
+            __('Activation Error', 'gravity-anti-spam'),
+            array('back_link' => true)
+        );
+    }
+
 	Gravity_Anti_Spam_Activator::activate();
 }
 
