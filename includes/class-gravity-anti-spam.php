@@ -13,6 +13,8 @@
  * @subpackage Gravity_Anti_Spam/includes
  */
 
+use gf_anti_spam\GFA_Settings;
+
 /**
  * The core plugin class.
  *
@@ -99,6 +101,8 @@ class Gravity_Anti_Spam {
 	 */
 	private function load_dependencies() {
 
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-gfa-settings.php';
+
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
@@ -121,6 +125,10 @@ class Gravity_Anti_Spam {
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-gravity-anti-spam-public.php';
+
+        require_once plugin_dir_path(dirname(__FILE__)) . 'services/gf-mapper-service.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'services/blocklist/database-service.php';
+
 
 		$this->loader = new Gravity_Anti_Spam_Loader();
 
@@ -156,6 +164,7 @@ class Gravity_Anti_Spam {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+        $this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_options_page' );
 
 	}
 

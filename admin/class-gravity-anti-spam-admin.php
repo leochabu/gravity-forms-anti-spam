@@ -10,6 +10,7 @@
  * @subpackage Gravity_Anti_Spam/admin
  */
 
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -51,7 +52,6 @@ class Gravity_Anti_Spam_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -99,5 +99,53 @@ class Gravity_Anti_Spam_Admin {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gravity-anti-spam-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
+
+    /**
+     * Admin menu
+     *
+     * @since    1.0.0
+     */
+    public function admin_options_page() {
+
+        add_menu_page(
+            'Anti Spam Settings' ,
+            'Anti Spam Settings',
+            'install_plugins',
+            'gfa/gfa-settings-page.php',
+            array( $this, 'admin_option_page' ) , 'dashicons-cart',
+            6
+        );
+        add_submenu_page(
+            "gfa/gfa-settings-page.php",
+            'General Settings',
+            'General Settings',
+            'install_plugins',
+            'gfa/gfa-settings-page.php',
+            array($this,'admin_option_page' )
+        );
+        #TODO
+        add_submenu_page( "gfa/gfa-settings-page.php", 'Lead Status', 'Missing Leads' , 'install_plugins', 'gfa/gfa-lead-status-page.php', array($this,'admin_lead_status_page' ) );
+        #TODO
+        add_submenu_page( "gfa/gfa-settings-page.php", 'Reports', 'Reports' , 'install_plugins', 'gfa/gfa-report-page.php', array($this,'admin_report_page' ) );
+        #TODO
+        add_submenu_page( "gfa/gfa-settings-page.php", 'Search', 'Search' , 'install_plugins', 'gfa/gfa-search-page.php', array($this,'admin_search_page' ) );
+
+
+        // add_options_page( 'Lead Submission Settings', 'Lead Submission Settings', 'install_plugins', 'gfa/gfa-settings-page.php', array ( $this, 'admin_option_page' ), 'dashicons-tickets', 6  );
+    }
+
+    /**
+     * Admin page
+     *
+     * @since    1.0.0
+     */
+    public function admin_option_page() {
+
+        include "partials/general_settings.php";
+
+    }
+
+
+
 
 }

@@ -10,6 +10,9 @@
  * @subpackage Gravity_Anti_Spam/includes
  */
 
+use gfa_services\database_service;
+
+
 /**
  * Register all actions and filters for the plugin.
  *
@@ -40,8 +43,9 @@ class Gravity_Anti_Spam_Loader {
 	 * @var      array    $filters    The filters registered with WordPress to fire when the plugin loads.
 	 */
 	protected $filters;
+    private database_service $database_service;
 
-	/**
+    /**
 	 * Initialize the collections used to maintain the actions and filters.
 	 *
 	 * @since    1.0.0
@@ -51,7 +55,8 @@ class Gravity_Anti_Spam_Loader {
 		$this->actions = array();
 		$this->filters = array();
 
-	}
+        $this->database_service = new database_service();
+    }
 
 	/**
 	 * Add a new action to the collection to be registered with WordPress.
@@ -95,7 +100,8 @@ class Gravity_Anti_Spam_Loader {
 	 * @param    int                  $accepted_args    The number of arguments that should be passed to the $callback.
 	 * @return   array                                  The collection of actions and filters registered with WordPress.
 	 */
-	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ) {
+	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ): array
+    {
 
 		$hooks[] = array(
 			'hook'          => $hook,
@@ -114,7 +120,11 @@ class Gravity_Anti_Spam_Loader {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run(): void
+    {
+        $this->check_constants();
+        database_service::check_db_stats();
+
 
 		foreach ( $this->filters as $hook ) {
 			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
@@ -125,5 +135,16 @@ class Gravity_Anti_Spam_Loader {
 		}
 
 	}
+
+    private function check_constants(): void
+    {
+        global $wpdb;
+
+        !defined('GFA_SUFFIX') && define('GFA_SUFFIX', 'gfa');
+        !defined('PLUGIN_NAME') && define('PLUGIN_NAME', 'Gravity Anti Spam');
+        !defined('PLUGIN_SLUG') && define('PLUGIN_SLUG', 'gravity-anti-spam');
+        !defined('GFA_OPTIONS') && define('GFA_OPTIONS', 'gfa');
+        !defined('GFA_SUBMISSION_TABLE') && define('GFA_SUBMISSION_TABLE', $wpdb->prefix.'gfa_submission_stats');
+    }
 
 }
