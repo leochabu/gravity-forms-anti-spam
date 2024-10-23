@@ -1,6 +1,7 @@
+
 === Gravity Forms Anti-Spam ===
 Contributors: leochabu
-Donate link: https://your-website.com/donate
+Donate link: https://github.com/leochabu/gravity-forms-anti-spam
 Tags: gravity forms, spam, forms, anti-spam
 Requires at least: 5.2
 Tested up to: 6.3
