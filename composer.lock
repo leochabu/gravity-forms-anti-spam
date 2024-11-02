@@ -1,9 +1,14 @@
 {
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "849e483b92d809ac06d05c9ec00112ad",
     "packages": [
         {
             "name": "composer/installers",
             "version": "v2.3.0",
-            "version_normalized": "2.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
@@ -27,7 +32,6 @@
                 "symfony/phpunit-bridge": "^7.1.1",
                 "symfony/process": "^5 || ^6 || ^7"
             },
-            "time": "2024-06-24T20:46:46+00:00",
             "type": "composer-plugin",
             "extra": {
                 "class": "Composer\\Installers\\Plugin",
@@ -36,7 +40,6 @@
                 },
                 "plugin-modifies-install-path": true
             },
-            "installation-source": "source",
             "autoload": {
                 "psr-4": {
                     "Composer\\Installers\\": "src/Composer/Installers"
@@ -147,12 +150,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "./installers"
+            "time": "2024-06-24T20:46:46+00:00"
         },
         {
             "name": "fortawesome/font-awesome",
             "version": "6.6.0",
-            "version_normalized": "6.6.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FortAwesome/Font-Awesome.git",
@@ -164,9 +166,7 @@
                 "reference": "37eff7fa00de26db41183a3ad8ed0e9119fbc44b",
                 "shasum": ""
             },
-            "time": "2024-07-16T17:13:31+00:00",
             "type": "library",
-            "installation-source": "source",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "CC-BY-4.0",
@@ -195,12 +195,11 @@
                 "issues": "https://github.com/FortAwesome/Font-Awesome/issues",
                 "source": "https://github.com/FortAwesome/Font-Awesome"
             },
-            "install-path": "../fortawesome/font-awesome"
+            "time": "2024-07-16T17:13:31+00:00"
         },
         {
             "name": "oomphinc/composer-installers-extender",
             "version": "2.0.1",
-            "version_normalized": "2.0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/oomphinc/composer-installers-extender.git",
@@ -222,12 +221,10 @@
                 "phpunit/phpunit": "^7.2",
                 "squizlabs/php_codesniffer": "^3.3"
             },
-            "time": "2021-12-15T12:32:42+00:00",
             "type": "composer-plugin",
             "extra": {
                 "class": "OomphInc\\ComposerInstallersExtender\\Plugin"
             },
-            "installation-source": "source",
             "autoload": {
                 "psr-4": {
                     "OomphInc\\ComposerInstallersExtender\\": "src/"
@@ -255,12 +252,11 @@
                 "issues": "https://github.com/oomphinc/composer-installers-extender/issues",
                 "source": "https://github.com/oomphinc/composer-installers-extender/tree/2.0.1"
             },
-            "install-path": "../oomphinc/composer-installers-extender"
+            "time": "2021-12-15T12:32:42+00:00"
         },
         {
             "name": "redux-framework/redux-framework",
             "version": "4.5.0",
-            "version_normalized": "4.5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reduxframework/redux-framework.git",
@@ -277,7 +273,6 @@
                 "oomphinc/composer-installers-extender": "^2.0",
                 "php": ">=7.1.0"
             },
-            "time": "2024-10-28T00:51:43+00:00",
             "type": "wordpress-plugin",
             "extra": {
                 "installer-types": [
@@ -289,7 +284,6 @@
                     ]
                 }
             },
-            "installation-source": "source",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
@@ -320,9 +314,16 @@
                 "source": "https://github.com/reduxframework/redux-framework/tree/4.5.0",
                 "website": "https://redux.io/"
             },
-            "install-path": "../redux-framework/redux-framework"
+            "time": "2024-10-28T00:51:43+00:00"
         }
     ],
-    "dev": false,
-    "dev-package-names": []
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

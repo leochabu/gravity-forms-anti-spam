@@ -1,0 +1,16 @@
+{
+    "require": {
+        "redux-framework/redux-framework": "^4.5"
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/{$name}/": ["type:library"]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": false,
+            "oomphinc/composer-installers-extender": false
+        }
+    }
+}

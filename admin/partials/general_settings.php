@@ -1,59 +1,51 @@
 <?php
-    use gf_anti_spam\GFA_Settings;
-    GFA_Settings::register_settings();
-?>
+//var_dump( "Partials");
+if (!class_exists('Redux')) {
+    return;
+}
 
-<div class="wrap form-group">
-    <h2>Lead Submission Settings</h2>
-    <form method="post" action="options.php">
-        <?php settings_fields( GFA_OPTIONS . '_options' ); ?>
-        <?php do_settings_sections( GFA_OPTIONS . '_options' ); ?>
-        <br>
+$opt_name = GFA_OPTIONS;
 
-        <h2><b>Blocklist settings</b></h2>
-        <p><i>Please add the required terms separated by commas (,) in each box.</i>
-            <br>
-            <i>For email addresses, include full addresses with "@" and without spaces, e.g., "example@example.com".</i><br>
-            <i>To exclude Top-Level Domains (TLDs), enter the TLD, e.g., "top.com".</i><br>
-            <i>For phone numbers, do not add special characters, only numbers.</i>
-        </p>
+$args = array(
+    'display_name'         => 'Anti Spam Settings',
+    'display_version'      => GRAVITY_ANTI_SPAM_VERSION,
+    'menu_title'           => esc_html__( 'Anti Spam Settings', GFA_TEXT_DOMAIN ),
+    'page_title'           => esc_html__( 'Anti Spam Settings', GFA_TEXT_DOMAIN ),
+    'menu_type'            => 'menu',
+    'menu_slug'            => 'gfa-settings',
+    'customizer'           => false,
+    'menu_icon'            => 'dashicons-admin-tools',
+    'dev_mode'             => false,
+);
 
-        <table style="text-align: left; width: 100%;">
-            <tr >
-                <th scope="row" style="text-align: left;padding-right: 15px"><label for="<?php echo GFA_OPTIONS . '_blocklist'; ?>">Blocked Terms</label></th>
-                <td style="width: 100% text-align: left;">
-                    <p><i>Include here the terms you want to have a match with the submission</i>
-                        <br>
-                        <i>Note that the match is per word. This means that each word in an input value compared with the terms in this list.</i><br>
-                        <i>E.G: If the blacklist contains "lazy" and input value is "The quick brown fox jumps over the lazy dog.", the submission will be blocked.</i><br>
-                    </p>
-                    <label>
-                        <textarea style="width: 70%;" rows="5" name="<?php echo GFA_OPTIONS . '_blocklist'; ?>" id="<?php echo GFA_OPTIONS . '_blocklist' ?>">
-                            <?php echo get_option(GFA_OPTIONS . '_blocklist')?>
-                        </textarea>
-                    </label>
-                </td>
-            </tr>
-
-
-        </table>
+Redux::set_args( $opt_name, $args );
 
 
 
-        <p style="border: 1px solid red; padding: 1em;">
-            <b style="color:red">Important:</b> <br>
-            Partial match is very sensitive. It means each individual word within a user's input is compared against the terms in this list.<br>
-            This can trigger unexpected matches if a user's input contains a harmless word that's part of a blocked term.
-            <br>
-            For example:
-            <br>
-            "cryptocurrency" would be flagged if "crypto" is a blocked term.<br>
-            "marketing team" would be flagged if "marketing" or "team" is a blocked term.<br>
-            Use partial match with caution and consider the potential for these types of unintended consequences.
-            <br>
-        </p>
+Redux::set_field( $opt_name, 'general', array(
+    'id'       => GFA_OPTIONS . '_blocklisted_tlds',
+    'type'     => 'textarea',
+    'title'    => esc_html__( 'Block list of TLDs', GFA_TEXT_DOMAIN ),
+    'subtitle' => esc_html__( 'Block Top-Level Domains (TLDs) e.g., "top.com".', GFA_TEXT_DOMAIN ),
+    'desc'     => esc_html__( 'Please add the TLDs separated by commas (,)', GFA_TEXT_DOMAIN ),
+    'default'  => 'top.com, block.net'
+) );
 
+Redux::set_field( $opt_name, 'general', array(
+    'id'       => GFA_OPTIONS . '_blocklisted_terms',
+    'type'     => 'textarea',
+    'title'    => esc_html__( 'Block list of terms', GFA_TEXT_DOMAIN ),
+    'subtitle' => esc_html__( 'Block all terms in the list.', GFA_TEXT_DOMAIN ),
+    'desc'     => esc_html__( 'Please add the terms separated by commas (,)', GFA_TEXT_DOMAIN ),
+    'default'  => 'crypto, seo, bitcoin'
+) );
 
-        <?php  submit_button(); ?>
-    </form>
-</div>
+Redux::set_section(
+    $opt_name,
+    array(
+        'title'  => esc_html__( 'General Settings', GFA_TEXT_DOMAIN ),
+        'id'     => 'general',
+        'desc'   => esc_html__( 'General settings for this plugin.', GFA_TEXT_DOMAIN ),
+        'icon'   => 'el el-cog',
+    )
+);

@@ -1,5 +1,11 @@
 <?php
 
+$admin_hooks = WP_PLUGIN_DIR . '/gravity-forms-anti-spam/includes/class-gravity-anti-spam-admin-hooks.php';
+
+    require_once $admin_hooks;
+if (file_exists($admin_hooks)) {
+}
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -107,45 +113,9 @@ class Gravity_Anti_Spam_Admin {
      */
     public function admin_options_page() {
 
-        add_menu_page(
-            'Anti Spam Settings' ,
-            'Anti Spam Settings',
-            'install_plugins',
-            'gfa/gfa-settings-page.php',
-            array( $this, 'admin_option_page' ) , 'dashicons-cart',
-            6
-        );
-        add_submenu_page(
-            "gfa/gfa-settings-page.php",
-            'General Settings',
-            'General Settings',
-            'install_plugins',
-            'gfa/gfa-settings-page.php',
-            array($this,'admin_option_page' )
-        );
-        #TODO
-        add_submenu_page( "gfa/gfa-settings-page.php", 'Lead Status', 'Missing Leads' , 'install_plugins', 'gfa/gfa-lead-status-page.php', array($this,'admin_lead_status_page' ) );
-        #TODO
-        add_submenu_page( "gfa/gfa-settings-page.php", 'Reports', 'Reports' , 'install_plugins', 'gfa/gfa-report-page.php', array($this,'admin_report_page' ) );
-        #TODO
-        add_submenu_page( "gfa/gfa-settings-page.php", 'Search', 'Search' , 'install_plugins', 'gfa/gfa-search-page.php', array($this,'admin_search_page' ) );
-
-
-        // add_options_page( 'Lead Submission Settings', 'Lead Submission Settings', 'install_plugins', 'gfa/gfa-settings-page.php', array ( $this, 'admin_option_page' ), 'dashicons-tickets', 6  );
+        if(is_admin()){
+            include "partials/general_settings.php";
+        }
     }
-
-    /**
-     * Admin page
-     *
-     * @since    1.0.0
-     */
-    public function admin_option_page() {
-
-        include "partials/general_settings.php";
-
-    }
-
-
-
 
 }

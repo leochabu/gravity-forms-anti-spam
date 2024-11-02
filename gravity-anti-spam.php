@@ -16,7 +16,7 @@
  * Plugin Name:       Gravity Forms Anti-Spam
  * Plugin URI:        https://github.com/leochabu/gravity-forms-anti-spam
  * Description:       This plugin allows you to decide which terms will block a submission, drastically reducing the amount of SPAM.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Author:            Leandro Chaves
  * Author URI:        https://github.com/leochabu/
  * License:           MIT
@@ -30,12 +30,22 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-/**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
- */
-define( 'GRAVITY_ANTI_SPAM_VERSION', '1.0.0' );
+require_once __DIR__ . '/includes/class-gravity-anti-spam-constants.php';
+require_once __DIR__ . '/services/blocklist/blocklist-service.php';
+
+$redux_core_path = WP_PLUGIN_DIR . '/gravity-forms-anti-spam/vendor/redux-framework/redux-framework/redux-core/framework.php';
+
+if (file_exists($redux_core_path)) {
+    require_once $redux_core_path;
+}
+
+if (!class_exists('ReduxFramework')) {
+    add_action('admin_notices', function() {
+        echo '<div class="notice notice-error"><p><strong>Redux Framework is not installed!</strong></p></div>';
+    });
+    return;
+}
+
 
 /**
  * The code that runs during plugin activation.
@@ -48,12 +58,12 @@ function activate_gravity_anti_spam() {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
             __('This plugin requires Gravity Forms to be installed. Please install Gravity Forms and try again.', 'gravity-anti-spam'),
-            __('Activation Error', 'gravity-anti-spam'),
+            __('Activation Error', GFA_TEXT_DOMAIN),
             array('back_link' => true)
         );
     }
 
-	Gravity_Anti_Spam_Activator::activate();
+    Gravity_Anti_Spam_Activator::activate();
 }
 
 /**
@@ -84,9 +94,9 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-gravity-anti-spam.php';
  * @since    1.0.0
  */
 function run_gravity_anti_spam() {
-
-	$plugin = new Gravity_Anti_Spam();
+    $plugin = new Gravity_Anti_Spam();
 	$plugin->run();
-
 }
+
+
 run_gravity_anti_spam();
