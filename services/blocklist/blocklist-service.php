@@ -4,10 +4,20 @@ include_once "email-service.php";
 include_once "lead-manager.php";
 include_once "sanitizer.php";
 
+$redux_core_path = WP_PLUGIN_DIR . '/gravity-forms-anti-spam/vendor/redux-framework/redux-framework/redux-core/framework.php';
+
+if (file_exists($redux_core_path)) {
+    require_once $redux_core_path;
+}
+
 use Exception;
 use Gravity_Anti_Spam;
 use LeadManager;
+use Redux;
 use sanitizer;
+
+global $redux_options;
+
 
 class BlocklistService
 {
@@ -21,14 +31,14 @@ class BlocklistService
         /**
          * Here we need to get the list of blocked words from WP Option
          */
-        $blocklisted_words = $this->get_blocklist_option(GFA_OPTIONS . '_blocklist');
-        $blocklisted_phones = $this->get_blocklist_option(GFA_OPTIONS . '_blocklisted_phones');
-        $blocklisted_emails = $this->get_blocklist_option(GFA_OPTIONS . '_blocklisted_emails');
+        $blocklisted_words = $this->get_blocklist_option( '_blocklisted_terms') ;
+        $blocklisted_phones = $this->get_blocklist_option( '_blocklisted_phones');
+        $blocklisted_emails = $this->get_blocklist_option( '_blocklisted_emails');
 
         /**
          * TLDs should be always compared as partial matches.
          */
-        $blocklisted_tlds = $this->get_blocklist_option(GFA_OPTIONS . '_blocklisted_tlds');
+        $blocklisted_tlds = $this->get_blocklist_option(  '_blocklisted_tlds' );
 
         if(!empty($blocklisted_emails)) {
             $blocklisted_emails = $blocklisted_emails[0] !== "," ? "," . $blocklisted_emails : $blocklisted_emails;
@@ -58,26 +68,34 @@ class BlocklistService
 
     }
 
-    private function get_blocklist_option($option_name)
+    /**
+     * Gets a blocklist option from the database.
+     *
+     * @param string $option_name The name of the option to retrieve.
+     *
+     * @return string The value of the option, or an empty string if the option does not exist.
+     */
+    private function get_blocklist_option($option_name): string
     {
-        return get_option($option_name)
-            && strlen(get_option($option_name))
-            ? get_option($option_name)
-            : "";
+        return $this->validate_option( Redux::get_option(GFA_OPTIONS, GFA_OPTIONS . $option_name ) );
     }
 
 
+
     /**
-     * @param $terms
-     * @return array
+     * Takes a string or array of terms and converts them to an array of lowercase terms.
+     *
+     * @param string|array $terms The terms to be converted.
+     *
+     * @return array An array of lowercase terms.
      */
     private function prepare_lowercase_terms($terms): array
     {
-        if(is_array($terms)){
-            $terms_string = implode(', ', $terms);
+        if(is_array($terms) && !empty($terms)){
+            $terms = implode(', ', $terms);
         }
 
-        $terms_string = trim(strtolower((string)$terms));
+        $terms_string = trim(strtolower($terms));
         $terms_array = explode(',',$terms_string);
 
         return empty($terms_array) ? [] : $terms_array;
@@ -91,19 +109,32 @@ class BlocklistService
      */
     public static function exact_match($entry): array
     {
-        $match_terms = self::check_tlds($entry);
+        $match_terms = [];
+        //var_dump($entry);
+        //$match_terms = self::check_tlds($entry);
 
         if(empty($match_terms))
         {
-            $match_terms = self::check_language($entry);
+            //$match_terms = self::check_language($entry);
         }
 
         if (empty($match_terms))
         {
             $input_words = LeadManager::extract_words_from_entry($entry);
+            echo "<pre> input words:";
+            print_r($input_words);
+            echo "</pre>";
+
             $blocklisted_words = self::$blocklisted_words_lowercase;
+            echo "<pre> blocklisted words:";
+            print_r($blocklisted_words);
+            echo "</pre>";
+
             $allow_list_words = self::$allow_list_words_lowercase;
 
+            echo "<pre> blocklisted words:";
+            print_r($blocklisted_words);
+            echo "</pre>";
             if (is_array($blocklisted_words)) {
                 $blocklist_intersection = array_intersect($input_words, $blocklisted_words);
             }
@@ -117,6 +148,9 @@ class BlocklistService
             }
         }
 
+        echo "<pre> match terms:";
+        print_r($match_terms);
+        echo "</pre>";
         return $match_terms;
     }
 
@@ -177,28 +211,43 @@ class BlocklistService
     }
 
 
+
     /**
-     * Get the value of blocklisted_words
+     * @return array The array of blocklisted words, in lowercase.
      */
     public static function getblocklisted_words(): array
     {
         return self::$blocklisted_words_lowercase;
     }
 
+
     /**
-     * @return string
+     * Gets the name of the table used to store leads.
+     *
+     * @return string The name of the table used to store leads.
      */
     public static function getLeadsTable(): string
     {
         return self::$leads_table;
     }
 
-    public static function set_lead_allow_listed(string $identifier)
+    /**
+     * Set a lead as allow-listed
+     * @param string $identifier The identifier of the lead to be allow-listed
+     * @return mixed The result of calling `LeadManager::set_lead_allow_listed`
+     */
+    public static function set_lead_allow_listed(string $identifier): mixed
     {
        return LeadManager::set_lead_allow_listed($identifier);
     }
 
-    public static function updateLeadFormData(string $identifier, mixed $data)
+    /**
+     * Updates the form data for a given lead
+     * @param string $identifier The identifier of the lead to be updated
+     * @param mixed $data The new form data for the lead
+     * @return mixed The result of calling `LeadManager::updateLeadFormData`
+     */
+    public static function updateLeadFormData(string $identifier, mixed $data): mixed
     {
         return LeadManager ::updateLeadFormData($identifier, $data);
     }
@@ -230,7 +279,7 @@ class BlocklistService
      * @return void - marks the given entry as blocked
      */
 
-    private static function mark_as_blocked($entry, $blocked_by)
+    private static function mark_as_blocked($entry, $blocked_by): void
     {
         $entry = unserialize($entry);
         $entry['entry']["is_blocked"] = $blocked_by;
@@ -246,7 +295,7 @@ class BlocklistService
      * @param $marked_entry
      * @return void
      */
-    private static function update_entry_form_data($entry, $marked_entry)
+    private static function update_entry_form_data($entry, $marked_entry): void
     {
 
         global $wpdb;
@@ -276,12 +325,13 @@ class BlocklistService
      */
     public static function check_language($lead_data): array
     {
+        global $redux_options;
         $chineseRegex = '/[\x{4e00}-\x{9fff}]+/u';
         $russianRegex = '/[\p{Cyrillic}]+/u';
         $blocked_by = [];
 
-        $block_chinese = (bool)get_option(PLUGIN_NAME . '_block_chinese');
-        $block_russian = (bool)get_option(PLUGIN_NAME . '_block_russian');
+        $block_chinese = $redux_options[GFA_OPTIONS . '_block_chinese'];
+        $block_russian = $redux_options[GFA_OPTIONS . '_block_russian'];
 
         foreach($lead_data as $field => $value)
         {
@@ -305,4 +355,20 @@ class BlocklistService
         EmailService::send_list_of_blocked_leads();
     }
 
+    private function validate_option(mixed $option): string
+    {
+        if(is_string($option) && !empty($option)){
+            $terms_string = rtrim($option);
+            $terms_string = ltrim($terms_string);
+            if (substr($terms_string, -1) !== ',') {
+                $terms_string .= ',';
+            }
+            return $terms_string;
+        }
+
+        return '';
+    }
+
 }
+
+new BlocklistService();

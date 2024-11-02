@@ -44,6 +44,7 @@ class Gravity_Anti_Spam_Loader {
 	 */
 	protected $filters;
     private database_service $database_service;
+    private classgravityantispamconstants $classgravityantispamconstants;
 
     /**
 	 * Initialize the collections used to maintain the actions and filters.
@@ -54,7 +55,6 @@ class Gravity_Anti_Spam_Loader {
 
 		$this->actions = array();
 		$this->filters = array();
-
         $this->database_service = new database_service();
     }
 
@@ -122,9 +122,7 @@ class Gravity_Anti_Spam_Loader {
 	 */
 	public function run(): void
     {
-        $this->check_constants();
         database_service::check_db_stats();
-
 
 		foreach ( $this->filters as $hook ) {
 			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
@@ -135,16 +133,6 @@ class Gravity_Anti_Spam_Loader {
 		}
 
 	}
-
-    private function check_constants(): void
-    {
-        global $wpdb;
-
-        !defined('GFA_SUFFIX') && define('GFA_SUFFIX', 'gfa');
-        !defined('PLUGIN_NAME') && define('PLUGIN_NAME', 'Gravity Anti Spam');
-        !defined('PLUGIN_SLUG') && define('PLUGIN_SLUG', 'gravity-anti-spam');
-        !defined('GFA_OPTIONS') && define('GFA_OPTIONS', 'gfa');
-        !defined('GFA_SUBMISSION_TABLE') && define('GFA_SUBMISSION_TABLE', $wpdb->prefix.'gfa_submission_stats');
-    }
-
 }
+
+
