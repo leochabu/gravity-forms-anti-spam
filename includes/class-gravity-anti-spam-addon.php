@@ -3,6 +3,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Prevent direct access
 }
 
+if ( !class_exists( 'GFAddOn' ) ) {
+    return;
+}
+
 GFForms::include_addon_framework();
 
 class GF_Anti_Spam_Addon extends GFAddOn {
@@ -14,6 +18,7 @@ class GF_Anti_Spam_Addon extends GFAddOn {
     protected $_full_path = __FILE__;
     protected $_title = 'Gravity Anti Spam Add-On';
     protected $_short_title = 'Anti Spam';
+    protected $_icon = 'dashicons-welcome-comments';
 
     private static $_instance = null;
 

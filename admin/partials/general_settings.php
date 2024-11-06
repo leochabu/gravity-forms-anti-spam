@@ -3,7 +3,6 @@
 if (!class_exists('Redux')) {
     return;
 }
-
 $opt_name = GFA_OPTIONS;
 
 $args = array(
@@ -14,7 +13,7 @@ $args = array(
     'menu_type'            => 'menu',
     'menu_slug'            => 'gfa-settings',
     'customizer'           => false,
-    'menu_icon'            => 'dashicons-admin-tools',
+    'menu_icon'            => 'dashicons-welcome-comments',
     'dev_mode'             => false,
 );
 
@@ -46,6 +45,7 @@ Redux::set_section(
         'title'  => esc_html__( 'General Settings', GFA_TEXT_DOMAIN ),
         'id'     => 'general',
         'desc'   => esc_html__( 'General settings for this plugin.', GFA_TEXT_DOMAIN ),
-        'icon'   => 'el el-cog',
+        'icon'   => 'el el-home',
     )
 );
+

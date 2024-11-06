@@ -10,7 +10,6 @@
  * @subpackage Gravity_Anti_Spam/includes
  */
 
-use gfa_services\database_service;
 
 
 /**
@@ -43,8 +42,7 @@ class Gravity_Anti_Spam_Loader {
 	 * @var      array    $filters    The filters registered with WordPress to fire when the plugin loads.
 	 */
 	protected $filters;
-    private database_service $database_service;
-    private classgravityantispamconstants $classgravityantispamconstants;
+
 
     /**
 	 * Initialize the collections used to maintain the actions and filters.
@@ -52,10 +50,8 @@ class Gravity_Anti_Spam_Loader {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-
 		$this->actions = array();
 		$this->filters = array();
-        $this->database_service = new database_service();
     }
 
 	/**
@@ -122,8 +118,6 @@ class Gravity_Anti_Spam_Loader {
 	 */
 	public function run(): void
     {
-        database_service::check_db_stats();
-
 		foreach ( $this->filters as $hook ) {
 			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
@@ -134,5 +128,3 @@ class Gravity_Anti_Spam_Loader {
 
 	}
 }
-
-

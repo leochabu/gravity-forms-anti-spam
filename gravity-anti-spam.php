@@ -19,8 +19,8 @@
  * Version:           1.0.2
  * Author:            Leandro Chaves
  * Author URI:        https://github.com/leochabu/
- * License:           MIT
- * License URI:       https://opensource.org/license/MIT
+ * License:           License: GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       gravity-anti-spam
  * Domain Path:       /languages
  */

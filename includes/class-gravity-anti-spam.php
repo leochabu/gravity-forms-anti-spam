@@ -81,6 +81,8 @@ class Gravity_Anti_Spam {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
+        add_action( 'admin_init', array($this,'gfa_check_gravity_forms_active' ));
+
 	}
 
 	/**
@@ -100,8 +102,6 @@ class Gravity_Anti_Spam {
 	 * @access   private
 	 */
 	private function load_dependencies() {
-
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-gfa-settings.php';
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
@@ -127,8 +127,6 @@ class Gravity_Anti_Spam {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-gravity-anti-spam-public.php';
 
         require_once plugin_dir_path(dirname(__FILE__)) . 'services/gf-mapper-service.php';
-        require_once plugin_dir_path(dirname(__FILE__)) . 'services/blocklist/database-service.php';
-
 
 		$this->loader = new Gravity_Anti_Spam_Loader();
 
@@ -223,5 +221,21 @@ class Gravity_Anti_Spam {
 	public function get_version() {
 		return $this->version;
 	}
+
+    /**
+     * Check if Gravity Forms is active and deactivate the plugin if it's not.
+     *
+     * @since 1.0.0
+     */
+    function gfa_check_gravity_forms_active() {
+        if ( ! class_exists( 'GFForms' ) ) {
+            // Deactivate the plugin if Gravity Forms is not active
+            deactivate_plugins( WP_PLUGIN_DIR . "/gravity-forms-anti-spam/" . $this->plugin_name . '.php' );
+
+            add_action( 'admin_notices', function() {
+                echo '<div class="notice notice-warning"><p>' . __( 'Gravity Anti Spam requires Gravity Forms to be active. It has been deactivated because Gravity Forms is not active.', 'gravity-anti-spam' ) . '</p></div>';
+            });
+        }
+    }
 
 }

@@ -1,5 +1,9 @@
 <?php
 use gfa_services\blocklist\BlocklistService;
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
 
 class Class_Gravity_Forms_Hooks
 {
@@ -18,6 +22,14 @@ class Class_Gravity_Forms_Hooks
     public function __clone() {}
     public function __wakeup() {}
 
+    /**
+     * Define hooks for the add-on.
+     *
+     * Adds a filter to the `gform_entry_is_spam` filter. This filter is used to check if a form entry
+     * is spam or not. The callback method is {@see Class_Gravity_Forms_Hooks::gfa_check_if_spam()}.
+     *
+     * @since 1.0.0
+     */
     public function define_hooks(): void
     {
         add_filter( 'gform_entry_is_spam', [ $this, 'gfa_check_if_spam' ], 10, 3 );
@@ -53,6 +65,13 @@ class Class_Gravity_Forms_Hooks
 
 
 
+    /**
+     * Checks if the given form entry is considered spam before submission.
+     *
+     * Hooked to `gform_pre_submission` action.
+     *
+     * @param array $form The form settings.
+     */
     public function gfa_pre_submission_check($form): void
     {
         if( !$this->gfa_form_use_anti_spam( $form ) ) {
@@ -61,38 +80,29 @@ class Class_Gravity_Forms_Hooks
 
         $entry = GFFormsModel::create_lead($form);
 
-        echo("<pre> entry");
-        print_r($entry);
-        echo("</pre>");
-
         $bls = new BlocklistService();
         $match_terms =$bls::exact_match($entry);
-
-        var_dump($match_terms);
-
-        echo("</pre>");
 
         if (!empty($match_terms)) {
             GFAPI::update_entry_property($entry['id'], 'is_spam', 1);
         }
     }
 
+    /**
+     * Checks if the given form entry is considered spam after submission.
+     *
+     * Hooked to `gform_after_submission` action.
+     *
+     * @param array $entry The form entry.
+     * @param array $form  The form settings.
+     */
     public function gfa_after_submission_check($entry, $form): void
     {
-        var_dump("after submission");
         if (!isset($form['use_anti_spam']) || !$form['use_anti_spam']) {
             return;
         }
 
         $match_terms = BlocklistService::exact_match($entry);
-
-        echo("<pre> match terms");
-        print_r($match_terms);
-        echo("</pre>");
-
-        echo("<pre> entry");
-        print_r($entry);
-        echo("</pre>");
 
         if (!empty($match_terms)) {
             GFAPI::update_entry_property($entry['id'], 'is_spam', 1);

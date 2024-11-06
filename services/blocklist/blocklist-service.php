@@ -1,6 +1,10 @@
 <?php
 namespace gfa_services\blocklist;
-include_once "email-service.php";
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 include_once "lead-manager.php";
 include_once "sanitizer.php";
 
@@ -110,31 +114,13 @@ class BlocklistService
     public static function exact_match($entry): array
     {
         $match_terms = [];
-        //var_dump($entry);
-        //$match_terms = self::check_tlds($entry);
-
-        if(empty($match_terms))
-        {
-            //$match_terms = self::check_language($entry);
-        }
 
         if (empty($match_terms))
         {
             $input_words = LeadManager::extract_words_from_entry($entry);
-            echo "<pre> input words:";
-            print_r($input_words);
-            echo "</pre>";
-
             $blocklisted_words = self::$blocklisted_words_lowercase;
-            echo "<pre> blocklisted words:";
-            print_r($blocklisted_words);
-            echo "</pre>";
-
             $allow_list_words = self::$allow_list_words_lowercase;
 
-            echo "<pre> blocklisted words:";
-            print_r($blocklisted_words);
-            echo "</pre>";
             if (is_array($blocklisted_words)) {
                 $blocklist_intersection = array_intersect($input_words, $blocklisted_words);
             }
@@ -148,9 +134,6 @@ class BlocklistService
             }
         }
 
-        echo "<pre> match terms:";
-        print_r($match_terms);
-        echo "</pre>";
         return $match_terms;
     }
 
@@ -187,31 +170,6 @@ class BlocklistService
     }
 
 
-
-    /**
-     * Finds for a partial match of the given input string in the blocklisted words
-     * @param $entry - string to be compared
-     * @return array - true if the input string is partially blocklisted, false otherwise.
-     */
-    public static function partial_match($entry): array
-    {
-        $blocklisted_words = self::$blocklisted_words_lowercase;
-        $lowercased_input = LeadManager::extract_words_from_entry($entry);
-
-        $blocked_by = [];
-        foreach ($blocklisted_words as $blockedWord) {
-            foreach ($lowercased_input as $input) {
-                if (stripos($input, $blockedWord) !== false) {
-                    $blocked_by[] = $blockedWord;
-                }
-            }
-        }
-
-        return $blocked_by;
-    }
-
-
-
     /**
      * @return array The array of blocklisted words, in lowercase.
      */
@@ -219,101 +177,6 @@ class BlocklistService
     {
         return self::$blocklisted_words_lowercase;
     }
-
-
-    /**
-     * Gets the name of the table used to store leads.
-     *
-     * @return string The name of the table used to store leads.
-     */
-    public static function getLeadsTable(): string
-    {
-        return self::$leads_table;
-    }
-
-    /**
-     * Set a lead as allow-listed
-     * @param string $identifier The identifier of the lead to be allow-listed
-     * @return mixed The result of calling `LeadManager::set_lead_allow_listed`
-     */
-    public static function set_lead_allow_listed(string $identifier): mixed
-    {
-       return LeadManager::set_lead_allow_listed($identifier);
-    }
-
-    /**
-     * Updates the form data for a given lead
-     * @param string $identifier The identifier of the lead to be updated
-     * @param mixed $data The new form data for the lead
-     * @return mixed The result of calling `LeadManager::updateLeadFormData`
-     */
-    public static function updateLeadFormData(string $identifier, mixed $data): mixed
-    {
-        return LeadManager ::updateLeadFormData($identifier, $data);
-    }
-
-
-    /**
-     * Returns the ID of an entry based on its identifier
-     * @param $entry
-     * @return int
-     */
-    private static function get_lead_stats_id_from_entry($entry): int
-    {
-        global $wpdb;
-        $table_name = self::$leads_table;
-        $lead_identifier = $entry['entry']['identifier'];
-
-        $lead_id_query = $wpdb->prepare(
-            "SELECT id FROM $table_name WHERE form_data LIKE %s",
-            '%' . $wpdb->esc_like($lead_identifier) . '%');
-
-        $lead_id = $wpdb->get_var($lead_id_query);
-
-        return intval($lead_id);
-    }
-
-    /**
-     * Marks the given entry as blocked
-     * @param $entry - array with all fields
-     * @return void - marks the given entry as blocked
-     */
-
-    private static function mark_as_blocked($entry, $blocked_by): void
-    {
-        $entry = unserialize($entry);
-        $entry['entry']["is_blocked"] = $blocked_by;
-
-        $marked_entry = serialize($entry);
-
-        self::update_entry_form_data($entry, $marked_entry);
-    }
-
-    /**
-     * Updates the form data of the given entry with the given marked entry
-     * @param $entry
-     * @param $marked_entry
-     * @return void
-     */
-    private static function update_entry_form_data($entry, $marked_entry): void
-    {
-
-        global $wpdb;
-
-        $entry_id = self::get_lead_stats_id_from_entry($entry);
-
-        $sanitized_marked_entry = $wpdb->esc_like($marked_entry);  // Sanitize user input
-
-        $wpdb->update(
-            self::$leads_table,
-            array(
-                'form_data' => $wpdb->prepare('%s', $sanitized_marked_entry), // Use prepared statement
-            ),
-            array('id' => $entry_id),
-            array('%s')
-        );
-    }
-
 
 
 
@@ -351,10 +214,16 @@ class BlocklistService
         return $blocked_by;
     }
 
-    public static function send_list_of_blocked_leads(): void{
-        EmailService::send_list_of_blocked_leads();
-    }
 
+    /**
+     * Validate a blocklist option string.
+     *
+     * This method trims the string and adds a trailing comma if it's not already present.
+     * If the option is not a string or is empty, an empty string is returned.
+     *
+     * @param mixed $option The option to be validated.
+     * @return string The validated option string.
+     */
     private function validate_option(mixed $option): string
     {
         if(is_string($option) && !empty($option)){

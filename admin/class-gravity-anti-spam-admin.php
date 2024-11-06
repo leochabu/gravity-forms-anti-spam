@@ -1,9 +1,9 @@
 <?php
 
-$admin_hooks = WP_PLUGIN_DIR . '/gravity-forms-anti-spam/includes/class-gravity-anti-spam-admin-hooks.php';
+$admin_hooks = WP_PLUGIN_DIR . '/gravity-forms-anti-spam/includes/class-gravity-anti-spam-addon.php';
 
-    require_once $admin_hooks;
 if (file_exists($admin_hooks)) {
+    require_once $admin_hooks;
 }
 
 /**
@@ -58,6 +58,9 @@ class Gravity_Anti_Spam_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+
+        add_action( 'plugins_loaded', array( $this, 'admin_options_page' ) );
+
 	}
 
 	/**
@@ -119,3 +122,4 @@ class Gravity_Anti_Spam_Admin {
     }
 
 }
+
